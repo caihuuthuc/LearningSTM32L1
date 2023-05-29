@@ -9,7 +9,7 @@ CC=$(TOOLROOT)/arm-none-eabi-gcc
 LD=$(TOOLROOT)/arm-none-eabi-gcc
 AR=$(TOOLROOT)/arm-none-eabi-ar
 AS=$(TOOLROOT)/arm-none-eabi-as
-GDB=$(TOOLROOT)/arm-none-eabi-gdb
+GDB=$(TOOLROOT)/gdb-multiarch
 
 # STM32L1xx headers paths
 STM_LIBROOT=/mnt/d/embedded/STM32CubeL1
