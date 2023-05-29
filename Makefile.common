@@ -1,0 +1,78 @@
+
+# Name of executable
+
+ELF=$(notdir $(CURDIR)).elf  
+
+# GNU ARM Toolchain path
+
+TOOLROOT = /usr/bin# Path to folder containing GNU ARM Toolchain 
+
+CC=$(TOOLROOT)/arm-none-eabi-gcc
+LD=$(TOOLROOT)/arm-none-eabi-gcc
+AR=$(TOOLROOT)/arm-none-eabi-ar
+AS=$(TOOLROOT)/arm-none-eabi-as
+GDB=$(TOOLROOT)/arm-none-eabi-gdb
+
+# STM32L1xx driver code paths
+
+LIBROOT=/mnt/d/embedded/STM32L1xx_StdPeriph_Lib_V1.4.0
+
+DEVICE=$(LIBROOT)/Libraries/CMSIS/Device/ST/STM32L1xx/Include # STM32L1 device support
+CORE=$(LIBROOT)/Libraries/CMSIS/Include # ARM core support
+PERIPH=$(LIBROOT)/Libraries/STM32L1xx_StdPeriph_Driver
+
+# Search system_stm32l1xx.c file 
+vpath %.c $(LIBROOT)/Libraries/CMSIS/Device/ST/STM32L1xx/Source/Templates
+
+# Search startup_stm32l152xe.s 
+vpath %.s $(TEMPLATEROOT)
+
+# Search stm32l152xe.h
+#vpath %.h $(TEMPLATEROOT)
+
+# Search path for STM32L1xx driver library
+
+vpath %.c $(CORE)
+vpath %.c $(PERIPH)/src
+vpath %.h $(DEVICE)
+
+#  Processor specific
+
+PTYPE = STM32L1XX_XL
+LDSCRIPT = $(TEMPLATEROOT)/stm32l152retx.ld
+STARTUP= startup_stm32l152xe.o system_stm32l1xx.o 
+
+# Compilation Flags
+
+FULLASSERT = -DUSE_FULL_ASSERT 
+
+LDFLAGS+= -T$(LDSCRIPT) -mthumb -mcpu=cortex-m3 --specs=nosys.specs
+CFLAGS+= -mcpu=cortex-m3 -mthumb --specs=nosys.specs
+CFLAGS+= -I$(TEMPLATEROOT) -I$(DEVICE) -I$(CORE) -I$(PERIPH)/inc -I.
+CFLAGS+= -D$(PTYPE) -DUSE_STDPERIPH_DRIVER=1 $(FULLASSERT)
+#CFLAGS+= -I$(TEMPLATEROOT)/Library/ff9/src -I$(TEMPLATEROOT)/Library
+
+
+# Build executable 
+$(ELF) :  $(OBJS)
+	$(LD) $(LDFLAGS) -o $@ $(OBJS) $(LDLIBS)
+
+# compile and generate dependency info
+
+%.o: %.c
+	$(CC) -c $(CFLAGS) $< -o $@
+	$(CC) -MM $(CFLAGS) $< > $*.d
+
+%.o: %.s
+	$(CC) -c $(CFLAGS) $< -o $@
+
+clean:
+	rm -f $(OBJS) $(OBJS:.o=.d) $(ELF) startup_stm32l* $(CLEANOTHER)
+
+debug: $(ELF)
+	$(GDB) $(ELF)
+
+
+# pull in dependencies
+
+-include $(OBJS:.o=.d)
