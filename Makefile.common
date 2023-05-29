@@ -1,7 +1,5 @@
-
-# Name of executable
-
-ELF=$(notdir $(CURDIR)).elf  
+# Define processor type flag
+PTYPE = STM32L152xE
 
 # GNU ARM Toolchain path
 
@@ -13,32 +11,26 @@ AR=$(TOOLROOT)/arm-none-eabi-ar
 AS=$(TOOLROOT)/arm-none-eabi-as
 GDB=$(TOOLROOT)/arm-none-eabi-gdb
 
-# STM32L1xx driver code paths
+# STM32L1xx headers paths
+STM_LIBROOT=/mnt/d/embedded/STM32CubeL1
 
-LIBROOT=/mnt/d/embedded/STM32L1xx_StdPeriph_Lib_V1.4.0
+CMSIS_ROOT=$(STM_LIBROOT)/Drivers/CMSIS
+DEVICE=$(CMSIS_ROOT)/Device/ST/STM32L1xx
 
-DEVICE=$(LIBROOT)/Libraries/CMSIS/Device/ST/STM32L1xx/Include # STM32L1 device support
-CORE=$(LIBROOT)/Libraries/CMSIS/Include # ARM core support
-PERIPH=$(LIBROOT)/Libraries/STM32L1xx_StdPeriph_Driver
+DEVICE_INC=$(DEVICE)/Include
+CORE_INC=$(CMSIS_ROOT)/Core/Include
 
 # Search system_stm32l1xx.c file 
-vpath %.c $(LIBROOT)/Libraries/CMSIS/Device/ST/STM32L1xx/Source/Templates
+vpath system_stm32l1xx.c $(DEVICE)/Source/Templates
 
 # Search startup_stm32l152xe.s 
-vpath %.s $(TEMPLATEROOT)
+vpath startup_stm32l152xe.s $(DEVICE)/Source/Templates/gcc
 
-# Search stm32l152xe.h
-#vpath %.h $(TEMPLATEROOT)
-
-# Search path for STM32L1xx driver library
-
-vpath %.c $(CORE)
-vpath %.c $(PERIPH)/src
-vpath %.h $(DEVICE)
+# Search file system_stm32l1xx.c
+vpath %.c $(DEVICE)/Source/Templates
 
 #  Processor specific
 
-PTYPE = STM32L1XX_XL
 LDSCRIPT = $(TEMPLATEROOT)/stm32l152retx.ld
 STARTUP= startup_stm32l152xe.o system_stm32l1xx.o 
 
@@ -48,9 +40,8 @@ FULLASSERT = -DUSE_FULL_ASSERT
 
 LDFLAGS+= -T$(LDSCRIPT) -mthumb -mcpu=cortex-m3 --specs=nosys.specs
 CFLAGS+= -mcpu=cortex-m3 -mthumb --specs=nosys.specs
-CFLAGS+= -I$(TEMPLATEROOT) -I$(DEVICE) -I$(CORE) -I$(PERIPH)/inc -I.
-CFLAGS+= -D$(PTYPE) -DUSE_STDPERIPH_DRIVER=1 $(FULLASSERT)
-#CFLAGS+= -I$(TEMPLATEROOT)/Library/ff9/src -I$(TEMPLATEROOT)/Library
+CFLAGS+= -I$(TEMPLATEROOT) -I$(DEVICE_INC) -I$(CORE_INC) -I.
+CFLAGS+= -D$(PTYPE) $(FULLASSERT)#-DUSE_STDPERIPH_DRIVER=1
 
 
 # Build executable 
