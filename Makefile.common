@@ -26,16 +26,11 @@ vpath system_stm32l1xx.c $(DEVICE)/Source/Templates
 # Search startup_stm32l152xe.s 
 vpath startup_stm32l152xe.s $(DEVICE)/Source/Templates/gcc
 
-# Search file system_stm32l1xx.c
-vpath %.c $(DEVICE)/Source/Templates
-
 #  Processor specific
-
 LDSCRIPT = $(TEMPLATEROOT)/stm32l152retx.ld
 STARTUP= startup_stm32l152xe.o system_stm32l1xx.o 
 
 # Compilation Flags
-
 FULLASSERT = -DUSE_FULL_ASSERT 
 
 LDFLAGS+= -T$(LDSCRIPT) -mthumb -mcpu=cortex-m3 --specs=nosys.specs
@@ -62,8 +57,3 @@ clean:
 
 debug: $(ELF)
 	$(GDB) $(ELF)
-
-
-# pull in dependencies
-
--include $(OBJS:.o=.d)
