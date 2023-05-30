@@ -1,11 +1,9 @@
+# Name of executable
+PROJ_NAME = Dummy
+
 TEMPLATEROOT = ..
 
 CFLAGS  = -O1 -g
 ASFLAGS = -g 
-
-OBJS = $(STARTUP) main.o
-
-# Name of executable
-PROJ_NAME=Dummy
 
 include $(TEMPLATEROOT)/Makefile.common
