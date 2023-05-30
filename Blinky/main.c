@@ -7,8 +7,6 @@ const unsigned long led_mask[] = {1ul << 5};
 
 volatile uint32_t msTicks;                                 // counts 1ms timeTicks
 
-void SystemCoreClockConfigure(void);
-void SysTick_Handler(void);
 void Delay (uint32_t dlyTicks);
 
 int32_t  LED_Initialize   (void);
@@ -33,10 +31,17 @@ int main() {
   int32_t max_num = LED_GetCount();
   int32_t num = 0;
 
-  SystemCoreClockConfigure();                              // configure HSI as System Clock
-  SystemCoreClockUpdate();
+  /*Configure the builtin LED LD2 at GPIO PA5 pin*/
+  RCC->AHBENR |=  RCC_AHBENR_GPIOAEN; /* Enable GPIOA clock         */
 
-  LED_Initialize();
+  /* Configure LED (PA.5) pins as push-pull outputs, No pull-up, pull-down */
+  GPIOA->MODER   &= ~((3ul << 2*5));
+  GPIOA->MODER   |=  ((1ul << 2*5));
+  GPIOA->OTYPER  &= ~((1ul <<   5));
+  GPIOA->OSPEEDR &= ~((3ul << 2*5));
+  GPIOA->OSPEEDR |=  ((1ul << 2*5));
+  GPIOA->PUPDR   &= ~((3ul << 2*5));
+
   Buttons_Initialize();
 
   SysTick_Config(SystemCoreClock / 1000);                  // SysTick 1 msec interrupts
@@ -71,62 +76,19 @@ void Delay (uint32_t dlyTicks) {
   while ((msTicks - curTicks) < dlyTicks) { __NOP(); }
 }
 
+int32_t LED_Initialize (void) {
 
-/*----------------------------------------------------------------------------
- * SystemCoreClockConfigure: configure SystemCoreClock using HSI
-                             (HSE is not populated on Nucleo board)
- *----------------------------------------------------------------------------*/
-void SystemCoreClockConfigure(void) {
+  RCC->AHBENR |=  RCC_AHBENR_GPIOAEN; /* Enable GPIOA clock         */
 
-  RCC->CR |= ((uint32_t)RCC_CR_HSION);                     // Enable HSI
-  while ((RCC->CR & RCC_CR_HSIRDY) == 0);                  // Wait for HSI Ready
-
-  RCC->CFGR = RCC_CFGR_SW_HSI;                             // HSI is system clock
-  while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_HSI);  // Wait for HSI used as system clock
-
-  // PLL configuration: PLLCLK = (HSI * 6)/3 = 32 MHz
-  RCC->CFGR &= ~(RCC_CFGR_PLLSRC |
-                 RCC_CFGR_PLLMUL |
-                 RCC_CFGR_PLLDIV  );
-  RCC->CFGR |=  (RCC_CFGR_PLLSRC_HSI |
-                 RCC_CFGR_PLLMUL4    |
-                 RCC_CFGR_PLLDIV2     );
-
-  FLASH->ACR |= FLASH_ACR_ACC64;                           // Enable 64-bit access
-  FLASH->ACR |= FLASH_ACR_PRFTEN;                          // Enable Prefetch Buffer
-  FLASH->ACR |= FLASH_ACR_LATENCY;                         // Flash 1 wait state
-
-  RCC->APB1ENR |= RCC_APB1ENR_PWREN;                       // Enable the PWR APB1 Clock
-  PWR->CR = PWR_CR_VOS_0;                                  // Select the Voltage Range 1 (1.8V)
-  while((PWR->CSR & PWR_CSR_VOSF) != 0);                   // Wait for Voltage Regulator Ready
-
-  RCC->CFGR |= RCC_CFGR_HPRE_DIV1;                         // HCLK = SYSCLK
-  RCC->CFGR |= RCC_CFGR_PPRE1_DIV1;                        // PCLK1 = HCLK
-  RCC->CFGR |= RCC_CFGR_PPRE2_DIV1;                        // PCLK2 = HCLK
-
-  RCC->CR &= ~RCC_CR_PLLON;                                // Disable PLL
-
-  RCC->CR |= RCC_CR_PLLON;                                 // Enable PLL
-  while((RCC->CR & RCC_CR_PLLRDY) == 0) __NOP();           // Wait till PLL is ready
-
-  RCC->CFGR &= ~RCC_CFGR_SW;                               // Select PLL as system clock source
-  RCC->CFGR |=  RCC_CFGR_SW_PLL;
-  while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL);  // Wait till PLL is system clock src
+  /* Configure LED (PA.5) pins as push-pull outputs, No pull-up, pull-down */
+  GPIOA->MODER   &= ~((3ul << 2*5));
+  GPIOA->MODER   |=  ((1ul << 2*5));
+  GPIOA->OTYPER  &= ~((1ul <<   5));
+  GPIOA->OSPEEDR &= ~((3ul << 2*5));
+  GPIOA->OSPEEDR |=  ((1ul << 2*5));
+  GPIOA->PUPDR   &= ~((3ul << 2*5));
+  return (0);
 }
-
-// int32_t LED_Initialize (void) {
-
-//   RCC->AHBENR |=  RCC_AHBENR_GPIOAEN;                   /* Enable GPIOA clock         */
-
-//   /* Configure LED (PA.5) pins as push-pull outputs, No pull-up, pull-down */
-//   GPIOA->MODER   &= ~((3ul << 2*5));
-//   GPIOA->MODER   |=  ((1ul << 2*5));
-//   GPIOA->OTYPER  &= ~((1ul <<   5));
-//   GPIOA->OSPEEDR &= ~((3ul << 2*5));
-//   GPIOA->OSPEEDR |=  ((1ul << 2*5));
-//   GPIOA->PUPDR   &= ~((3ul << 2*5));
-//   return (0);
-// }
 
 // int32_t LED_On (uint32_t num) {
 //   int32_t retCode = 0;
