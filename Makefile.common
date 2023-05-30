@@ -4,7 +4,7 @@ PTYPE 		= 	STM32L152xE
 # GNU ARM Toolchain path
 TOOLROOT	= 	/usr/bin
 
-CC 			=	$(TOOLROOT)/arm-none-eabi-gcc
+CC			=	$(TOOLROOT)/arm-none-eabi-gcc
 LD			=	$(TOOLROOT)/arm-none-eabi-gcc
 
 OBJCOPY		=	$(TOOLROOT)/arm-none-eabi-objcopy
@@ -20,10 +20,6 @@ DEVICE		=	$(CMSIS_ROOT)/Device/ST/STM32L1
 DEVICE_INC	=	$(DEVICE)/Include
 CORE_INC	=	$(CMSIS_ROOT)/CMSIS/Core/Include
 
-# Search Processor specific file 
-vpath 		system_stm32l1xx.c 		$(DEVICE)/Source/Templates
-vpath 		startup_stm32l152xe.s 	$(DEVICE)/Source/Templates/gcc
-
 # Compilation Flags
 FULLASSERT 	= 	-DUSE_FULL_ASSERT 
 
@@ -32,6 +28,10 @@ ASFLAGS		=	-g
 LDFLAGS 	= 	-T$(TEMPLATEROOT)/stm32l152retx.ld -Llib --specs=nosys.specs
 CFLAGS 		= 	-g -O1 -c -fno-common -mcpu=cortex-m3 -mthumb --specs=nosys.specs -nostdlib
 CPPFLAGS 	= 	-D$(PTYPE) $(FULLASSERT)-I$(TEMPLATEROOT) -I$(DEVICE_INC) -I$(CORE_INC) -I. 
+
+# Search Processor specific file 
+vpath 		system_stm32l1xx.c 		$(DEVICE)/Source/Templates
+vpath 		startup_stm32l152xe.s 	$(DEVICE)/Source/Templates/gcc
 
 # compile and generate dependency info
 %.o: %.c
