@@ -6,6 +6,6 @@ ASFLAGS = -g
 OBJS = $(STARTUP) main.o
 
 # Name of executable
-PROJ_NAME = RCC 
+PROJ_NAME = RCC
 
 include $(TEMPLATEROOT)/Makefile.common
