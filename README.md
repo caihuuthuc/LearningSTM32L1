@@ -1,13 +1,19 @@
 # Learning STM32L1 
 
-A learning project using STM32L1 NUCLEO board (STM32L152RET6), GNU ARM toolchain and the STM32L1xx Standard Peripheral Library.
+A learning project using STM32L1 NUCLEO board (STM32L152RET6), GNU ARM toolchain and the ARM CMSIS Library.
 
 Datasheet [Link] (https://www.st.com/resource/en/datasheet/stm32l152rb.pdf)
 ## Requirement
 
-1. Clone the `STM32CubeL1` repo: 
+1. Clone the `CMSIS_5` and `cmsis_device_l1` repo: 
 
-    ```git clone https://github.com/STMicroelectronics/STM32CubeL1.git```
+    ```shell
+        git clone https://github.com/ARM-software/CMSIS_5.git CMSIS
+        cd CMSIS/Device
+        mkdir ST
+        cd ST
+        git clone https://github.com/STMicroelectronics/cmsis_device_l1.git STM32L1
+    ```
 
 2. `st-link`
 
@@ -16,7 +22,7 @@ Datasheet [Link] (https://www.st.com/resource/en/datasheet/stm32l152rb.pdf)
 
 Step 1. Install the GNU ARM Toolchain and STM Library.
 
-Step 2. Change the `TOOLROOT` point to folder cotaining GNU ARM Toolchains and `STM_LIBROOT` point to folder containg `STM32CubeL1` repo in `Makefile.common`
+Step 2. Change the `TOOLROOT` point to folder cotaining GNU ARM Toolchains and `CMSIS_ROOT` point to folder containg `CMSIS` folder in `Makefile.common`
 
 Step 3. `cd <target-folder>`
 
