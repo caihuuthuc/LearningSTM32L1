@@ -2,14 +2,12 @@
 PTYPE = STM32L152xE
 
 # GNU ARM Toolchain path
-
-TOOLROOT = /usr/bin# Path to folder containing GNU ARM Toolchain 
+TOOLROOT = /usr/bin
 
 CC=$(TOOLROOT)/arm-none-eabi-gcc
 LD=$(TOOLROOT)/arm-none-eabi-gcc
-AR=$(TOOLROOT)/arm-none-eabi-ar
-AS=$(TOOLROOT)/arm-none-eabi-as
-GDB=$(TOOLROOT)/gdb-multiarch
+
+OBJCOPY=$(TOOLROOT)/arm-none-eabi-objcopy
 
 # STM32L1xx headers paths
 STM_LIBROOT=/mnt/d/embedded/STM32CubeL1
@@ -20,28 +18,30 @@ DEVICE=$(CMSIS_ROOT)/Device/ST/STM32L1xx
 DEVICE_INC=$(DEVICE)/Include
 CORE_INC=$(CMSIS_ROOT)/Core/Include
 
-# Search system_stm32l1xx.c file 
+# Search Processor specific file 
 vpath system_stm32l1xx.c $(DEVICE)/Source/Templates
-
-# Search startup_stm32l152xe.s 
 vpath startup_stm32l152xe.s $(DEVICE)/Source/Templates/gcc
 
-#  Processor specific
-LDSCRIPT = $(TEMPLATEROOT)/stm32l152retx.ld
-STARTUP= startup_stm32l152xe.o system_stm32l1xx.o 
+STARTUP = startup_stm32l152xe.o system_stm32l1xx.o 
 
 # Compilation Flags
 FULLASSERT = -DUSE_FULL_ASSERT 
 
-LDFLAGS+= -T$(LDSCRIPT) -mthumb -mcpu=cortex-m3 --specs=nosys.specs
+LDFLAGS+= -T$(TEMPLATEROOT)/stm32l152retx.ld -mthumb -mcpu=cortex-m3 --specs=nosys.specs
 CFLAGS+= -mcpu=cortex-m3 -mthumb --specs=nosys.specs
 CFLAGS+= -I$(TEMPLATEROOT) -I$(DEVICE_INC) -I$(CORE_INC) -I.
 CFLAGS+= -D$(PTYPE) $(FULLASSERT)#-DUSE_STDPERIPH_DRIVER=1
 
+.PHONY: proj
 
-# Build executable 
-$(ELF) :  $(OBJS)
+all: proj
+
+proj: $(PROJ_NAME).elf
+
+$(PROJ_NAME).elf :  $(OBJS)
 	$(LD) $(LDFLAGS) -o $@ $(OBJS) $(LDLIBS)
+	$(OBJCOPY) -O ihex $@ $(PROJ_NAME).hex
+	$(OBJCOPY) -O binary $@ $(PROJ_NAME).bin
 
 # compile and generate dependency info
 
@@ -53,7 +53,11 @@ $(ELF) :  $(OBJS)
 	$(CC) -c $(CFLAGS) $< -o $@
 
 clean:
-	rm -f $(OBJS) $(OBJS:.o=.d) $(ELF) startup_stm32l* $(CLEANOTHER)
+	rm -f *.o 
+	rm -f $(PROJ_NAME).elf
+	rm -f $(PROJ_NAME).hex
+	rm -f $(PROJ_NAME).bin
 
-debug: $(ELF)
-	$(GDB) $(ELF)
+# Flash the NUCLEO-STM32L152RE
+burn:
+	$(STLINK)/st-flash write $(PROJ_NAME).bin 0x08000000

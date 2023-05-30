@@ -5,11 +5,13 @@ A learning project using STM32L1 NUCLEO board (STM32L152RET6), GNU ARM toolchain
 Datasheet [Link] (https://www.st.com/resource/en/datasheet/stm32l152rb.pdf)
 ## Requirement
 
-Clone the `STM32CubeL1` repo: 
+1. Clone the `STM32CubeL1` repo: 
 
-`git clone https://github.com/STMicroelectronics/STM32CubeL1.git`
+    ```git clone https://github.com/STMicroelectronics/STM32CubeL1.git```
 
+2. `st-link`
 
+    `apt install stlink-tools`
 ## Run
 
 Step 1. Install the GNU ARM Toolchain and STM Library.
