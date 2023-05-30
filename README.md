@@ -18,11 +18,11 @@ Step 1. Install the GNU ARM Toolchain and STM Library.
 
 Step 2. Change the `TOOLROOT` point to folder cotaining GNU ARM Toolchains and `STM_LIBROOT` point to folder containg `STM32CubeL1` repo in `Makefile.common`
 
-Step 3. `cd` to any target folder
+Step 3. `cd <target-folder>`
 
-Step 4. `make`: creating .elf file
+Step 4. `make`: creating execution file
 
-Step 5. 
+Step 5. `make flash-to-st`: flash execution file to ST
 
 ## Target folder
 
