@@ -13,44 +13,46 @@ OBJCOPY=$(TOOLROOT)/arm-none-eabi-objcopy
 STLINK=/usr/bin
 
 # STM32L1xx headers paths
-STM_LIBROOT=/mnt/d/embedded/STM32CubeL1
+CMSIS_ROOT=/mnt/d/embedded/CMSIS
 
-CMSIS_ROOT=$(STM_LIBROOT)/Drivers/CMSIS
-DEVICE=$(CMSIS_ROOT)/Device/ST/STM32L1xx
+DEVICE=$(CMSIS_ROOT)/Device/ST/STM32L1
 
 DEVICE_INC=$(DEVICE)/Include
-CORE_INC=$(CMSIS_ROOT)/Core/Include
+CORE_INC=$(CMSIS_ROOT)/CMSIS/Core/Include
 
 # Search Processor specific file 
 vpath system_stm32l1xx.c $(DEVICE)/Source/Templates
-vpath startup_stm32l152xe.s $(DEVICE)/Source/Templates/gcc
+# vpath startup_stm32l152xe.s $(DEVICE)/Source/Templates/gcc
+vpath startup_stm32l152xe.s $(TEMPLATEROOT)
 
-STARTUP = startup_stm32l152xe.o system_stm32l1xx.o 
+vpath another_startup.c $(TEMPLATEROOT)
+vpath startup.s $(TEMPLATEROOT)
 
 # Compilation Flags
 FULLASSERT = -DUSE_FULL_ASSERT 
 
-LDFLAGS+= -T$(TEMPLATEROOT)/stm32l152retx.ld -mthumb -mcpu=cortex-m3 --specs=nosys.specs
-CFLAGS+= -mcpu=cortex-m3 -mthumb --specs=nosys.specs
-CFLAGS+= -I$(TEMPLATEROOT) -I$(DEVICE_INC) -I$(CORE_INC) -I.
-CFLAGS+= -D$(PTYPE) $(FULLASSERT)#-DUSE_STDPERIPH_DRIVER=1
+LDFLAGS+= -T $(TEMPLATEROOT)/stm32l152retx.ld
+CFLAGS+= -mcpu=cortex-m3 -mthumb --specs=nosys.specs -nostdlib
+CPPFLAGS = -D$(PTYPE) $(FULLASSERT)-I$(TEMPLATEROOT) -I$(DEVICE_INC) -I$(CORE_INC) -I. 
 
 .PHONY: proj
 
 all: proj
 
 proj: $(PROJ_NAME).elf
-
-$(PROJ_NAME).elf :  $(OBJS)
-	$(LD) $(LDFLAGS) -o $@ $(OBJS) $(LDLIBS)
+ 
+$(PROJ_NAME).elf :  main.o startup_stm32l152xe.o system_stm32l1xx.o
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(LDLIBS) $< -o $@
+	
 	$(OBJCOPY) -O ihex $@ $(PROJ_NAME).hex
 	$(OBJCOPY) -O binary $@ $(PROJ_NAME).bin
+# $(CC) -MM $(CFLAGS) $< > $(PROJ_NAME).d
+#  $(LD) $(LDFLAGS) -o $@ $< $(LDLIBS)
 
 # compile and generate dependency info
 
 %.o: %.c
-	$(CC) -c $(CFLAGS) $< -o $@
-	$(CC) -MM $(CFLAGS) $< > $*.d
+	$(CC) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
 
 %.o: %.s
 	$(CC) -c $(CFLAGS) $< -o $@
