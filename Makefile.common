@@ -9,6 +9,9 @@ LD=$(TOOLROOT)/arm-none-eabi-gcc
 
 OBJCOPY=$(TOOLROOT)/arm-none-eabi-objcopy
 
+# ST-Utils path
+STLINK=/usr/bin
+
 # STM32L1xx headers paths
 STM_LIBROOT=/mnt/d/embedded/STM32CubeL1
 
@@ -54,10 +57,12 @@ $(PROJ_NAME).elf :  $(OBJS)
 
 clean:
 	rm -f *.o 
+	rm -f *.d
 	rm -f $(PROJ_NAME).elf
 	rm -f $(PROJ_NAME).hex
 	rm -f $(PROJ_NAME).bin
 
 # Flash the NUCLEO-STM32L152RE
-burn:
+flash-to-st: proj
+	$(STLINK)/st-flash reset
 	$(STLINK)/st-flash write $(PROJ_NAME).bin 0x08000000
