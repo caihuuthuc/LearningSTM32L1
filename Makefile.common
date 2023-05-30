@@ -1,61 +1,63 @@
 # Define processor type flag
-PTYPE = STM32L152xE
+PTYPE 		= 	STM32L152xE
 
 # GNU ARM Toolchain path
-TOOLROOT = /usr/bin
+TOOLROOT	= 	/usr/bin
 
-CC=$(TOOLROOT)/arm-none-eabi-gcc
-LD=$(TOOLROOT)/arm-none-eabi-gcc
+CC 			=	$(TOOLROOT)/arm-none-eabi-gcc
+LD			=	$(TOOLROOT)/arm-none-eabi-gcc
 
-OBJCOPY=$(TOOLROOT)/arm-none-eabi-objcopy
+OBJCOPY		=	$(TOOLROOT)/arm-none-eabi-objcopy
 
 # ST-Utils path
-STLINK=/usr/bin
+STLINK		=	/usr/bin
 
 # STM32L1xx headers paths
-CMSIS_ROOT=/mnt/d/embedded/CMSIS
+CMSIS_ROOT	=	/mnt/d/embedded/CMSIS
 
-DEVICE=$(CMSIS_ROOT)/Device/ST/STM32L1
+DEVICE		=	$(CMSIS_ROOT)/Device/ST/STM32L1
 
-DEVICE_INC=$(DEVICE)/Include
-CORE_INC=$(CMSIS_ROOT)/CMSIS/Core/Include
+DEVICE_INC	=	$(DEVICE)/Include
+CORE_INC	=	$(CMSIS_ROOT)/CMSIS/Core/Include
 
 # Search Processor specific file 
-vpath system_stm32l1xx.c $(DEVICE)/Source/Templates
-# vpath startup_stm32l152xe.s $(DEVICE)/Source/Templates/gcc
-vpath startup_stm32l152xe.s $(TEMPLATEROOT)
-
-vpath another_startup.c $(TEMPLATEROOT)
-vpath startup.s $(TEMPLATEROOT)
+vpath 		system_stm32l1xx.c 		$(DEVICE)/Source/Templates
+vpath 		startup_stm32l152xe.s 	$(DEVICE)/Source/Templates/gcc
 
 # Compilation Flags
-FULLASSERT = -DUSE_FULL_ASSERT 
+FULLASSERT 	= 	-DUSE_FULL_ASSERT 
 
-LDFLAGS+= -T $(TEMPLATEROOT)/stm32l152retx.ld
-CFLAGS+= -mcpu=cortex-m3 -mthumb --specs=nosys.specs -nostdlib
-CPPFLAGS = -D$(PTYPE) $(FULLASSERT)-I$(TEMPLATEROOT) -I$(DEVICE_INC) -I$(CORE_INC) -I. 
+ASFLAGS		=	-g
 
-.PHONY: proj
-
-all: proj
-
-proj: $(PROJ_NAME).elf
- 
-$(PROJ_NAME).elf :  main.o startup_stm32l152xe.o system_stm32l1xx.o
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(LDLIBS) $< -o $@
-	
-	$(OBJCOPY) -O ihex $@ $(PROJ_NAME).hex
-	$(OBJCOPY) -O binary $@ $(PROJ_NAME).bin
-# $(CC) -MM $(CFLAGS) $< > $(PROJ_NAME).d
-#  $(LD) $(LDFLAGS) -o $@ $< $(LDLIBS)
+LDFLAGS 	= 	-T$(TEMPLATEROOT)/stm32l152retx.ld -Llib --specs=nosys.specs
+CFLAGS 		= 	-g -O1 -c -fno-common -mcpu=cortex-m3 -mthumb --specs=nosys.specs -nostdlib
+CPPFLAGS 	= 	-D$(PTYPE) $(FULLASSERT)-I$(TEMPLATEROOT) -I$(DEVICE_INC) -I$(CORE_INC) -I. 
 
 # compile and generate dependency info
-
 %.o: %.c
+	$(CC) -MM $(CFLAGS) $(CPPFLAGS) $< > $*.d
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
 
 %.o: %.s
 	$(CC) -c $(CFLAGS) $< -o $@
+
+.PHONY: proj lib
+
+all: proj lib
+
+lib: 
+
+proj: $(PROJ_NAME).elf $(PROJ_NAME).bin $(PROJ_NAME).hex
+ 
+$(PROJ_NAME).elf : main.o startup_stm32l152xe.o system_stm32l1xx.o
+	$(LD) $(LDFLAGS) $(LDLIBS) $^ -o $@
+# $(LD) $(LDFLAGS) $(LDLIBS) main.o startup_stm32l152xe.o system_stm32l1xx.o -o $@
+
+$(PROJ_NAME).bin: $(PROJ_NAME).elf
+	$(OBJCOPY) -O binary $< $@
+
+$(PROJ_NAME).hex: $(PROJ_NAME).elf
+	$(OBJCOPY) -O ihex $< $@
 
 clean:
 	rm -f *.o 
