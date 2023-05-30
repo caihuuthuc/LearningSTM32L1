@@ -4,8 +4,8 @@ PTYPE 		= 	STM32L152xE
 # GNU ARM Toolchain path
 TOOLROOT	= 	/usr/bin
 
-CC			=	$(TOOLROOT)/arm-none-eabi-gcc
-LD			=	$(TOOLROOT)/arm-none-eabi-gcc
+CC		=	$(TOOLROOT)/arm-none-eabi-gcc
+LD		=	$(TOOLROOT)/arm-none-eabi-gcc
 
 OBJCOPY		=	$(TOOLROOT)/arm-none-eabi-objcopy
 
