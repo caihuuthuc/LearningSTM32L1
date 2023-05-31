@@ -33,4 +33,4 @@ Step 5. `make flash-to-st`: flash execution file to ST
 ## Target folder
 
 1. `Dummy`
-2. `RCC`
+2. `Blinky`
