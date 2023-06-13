@@ -41,15 +41,14 @@ vpath 		startup_stm32l152xe.s 	$(DEVICE)/Source/Templates/gcc
 %.o: %.s
 	$(CC) -c $(CFLAGS) $< -o $@
 
-.PHONY: proj lib
+.PHONY: proj
 
-all: proj lib
+all: proj
 
-lib: 
 
 proj: $(PROJ_NAME).elf $(PROJ_NAME).bin $(PROJ_NAME).hex
  
-$(PROJ_NAME).elf : main.o startup_stm32l152xe.o system_stm32l1xx.o $OTHERS_FILES
+$(PROJ_NAME).elf : main.o startup_stm32l152xe.o system_stm32l1xx.o $(OTHERS)
 	$(LD) $(LDFLAGS) $(LDLIBS) $^ -o $@
 # $(LD) $(LDFLAGS) $(LDLIBS) main.o startup_stm32l152xe.o system_stm32l1xx.o -o $@
 
