@@ -54,9 +54,9 @@ static void KeyBufIn(uint8_t code)
 static char KeyIsKeyDown(void)
 {
 	if (((GPIOC->IDR & GPIO_IDR_IDR_13) == 0) & (1 << 0))
-	{ /* User button not pressed if 0															 */
+	{ /* User button not pressed if 0 */
 		/* Enter critical section*/
-		KeyDownTmr++; /* Update key down timer 																		 */
+		KeyDownTmr++; /* Update key down timer */
 		/* Exit critical section*/
 		return 1;
 	}
@@ -89,7 +89,7 @@ static void KeyScanTask(void *data)
 {
 	for (;;)
 	{
-		/* Delay KEY_SCAN_TASK_DLY between user button scans*/
+		/* Delay KEY_SCAN_TASK_DLY between user button scans */
 		switch (KeyScanState)
 		{
 
