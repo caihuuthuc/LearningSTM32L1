@@ -1,9 +1,35 @@
-#include "stm32l152xe.h"  
+#include "key.h"
+
+/* counts 1ms timeTicks */
+volatile uint32_t msTicks;             
+
+void Delay (uint32_t dlyTicks);
+void SysTick_Handler(void);
 
 int main (void) {
-  while (1) 
-    ;
+	SystemCoreClockUpdate();
+  SysTick_Config(SystemCoreClock / 1000); 
+	KeyInit();
+	
+	for (;;) {
+	
+	}
 }
+
+
+
+
+void SysTick_Handler(void) {
+  msTicks++;
+}
+
+void Delay (uint32_t dlyTicks) {
+  uint32_t curTicks;
+
+  curTicks = msTicks;
+  while ((msTicks - curTicks) < dlyTicks) { __NOP(); }
+}
+
 
 // Handle assertion violations in the firmware library
 #ifdef  USE_FULL_ASSERT
