@@ -49,7 +49,7 @@ lib:
 
 proj: $(PROJ_NAME).elf $(PROJ_NAME).bin $(PROJ_NAME).hex
  
-$(PROJ_NAME).elf : main.o startup_stm32l152xe.o system_stm32l1xx.o
+$(PROJ_NAME).elf : main.o startup_stm32l152xe.o system_stm32l1xx.o $OTHERS_FILES
 	$(LD) $(LDFLAGS) $(LDLIBS) $^ -o $@
 # $(LD) $(LDFLAGS) $(LDLIBS) main.o startup_stm32l152xe.o system_stm32l1xx.o -o $@
 
