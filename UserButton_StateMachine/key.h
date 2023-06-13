@@ -12,13 +12,12 @@
 #define KEY_USER_BUTTON_CODE 1
 
 /* Fucntion prototypes*/
-void KeyFlush (void);
+void KeyFlush(void);
 uint8_t KeyGetKey(uint16_t to);
-uint32_t KeyGetKeyDownTime (void);
+uint32_t KeyGetKeyDownTime(void);
 /* boolean KeyHit(void);*/
 void KeyInit(void);
 
 void KeyInitPort(void);
 
 #endif
-
